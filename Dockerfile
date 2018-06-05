@@ -9,4 +9,8 @@ ADD runner.sh /usr/local/bin
 RUN mv /usr/local/bin/runner.sh /usr/local/bin/runner && \
     chmod +x /usr/local/bin/runner
 
+ADD kafka/server.properties /opt/
+ADD supervisor/zookeeper.ini /etc/supervisor.d/
+ADD supervisor/kafka.template /opt/
+
 CMD ["runner"]

@@ -1,0 +1,4 @@
+[program:kafka-{broker_id}]
+command=/opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server-{broker_id}.properties
+autostart=true
+autorestart=true
