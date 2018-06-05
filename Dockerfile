@@ -1,6 +1,6 @@
 FROM tanigroup/alpine-openjdk-8-jre
 
-RUN apk --update add supervisor wget bash && \
+RUN apk --update add supervisor wget nano && \
     wget -q http://www-us.apache.org/dist/kafka/1.1.0/kafka_2.12-1.1.0.tgz -O kafka.tgz && \
     mkdir -p /opt && \
     tar xfz kafka.tgz -C /opt && \
