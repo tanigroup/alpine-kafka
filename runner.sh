@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+if [[ -z "$ADVERTISED_HOST" ]]; then
+    echo "Please provide ADVERTISED_HOST"
+    exit 0
+fi
 
 cd /opt/
 KAFKA_NAME=$(ls -d */ | cut -f1 -d'/')
@@ -14,17 +19,20 @@ else
     REPLICAS=$BROKER_REPLICAS
 fi
 rm -rf $KAFKA_HOME/config/server.properties
-   
-while [ ! "$REPLICAS" -eq 0 ]; do
-    echo "Creating kafka server with id= $REPLICAS"
-    cp /opt/server.properties $KAFKA_HOME/config/server-$REPLICAS.properties
-    sed -i "s,{broker_id},$REPLICAS,g" $KAFKA_HOME/config/server-$REPLICAS.properties
-    sed -i "s,{host_port},909$REPLICAS,g" $KAFKA_HOME/config/server-$REPLICAS.properties
 
-    cp /opt/kafka.template /etc/supervisor.d/kafka-$REPLICAS.ini
-    sed -i "s,{broker_id},$REPLICAS,g" /etc/supervisor.d/kafka-$REPLICAS.ini
+for (( i=0 ; ((i-$REPLICAS)) ; i=(($i+1)) ))
+do
+    PORT=9092
+    KAFKA_PORT=$(($PORT+$i))
 
-    : $((REPLICAS-=1))
-done
+    echo "Creating kafka server with id= $i"
+    cp /opt/server.properties $KAFKA_HOME/config/server-$i.properties
+    sed -i "s,{broker_id},$i,g" $KAFKA_HOME/config/server-$i.properties
+    sed -i "s,{host_port},$KAFKA_PORT,g" $KAFKA_HOME/config/server-$i.properties
+    sed -i "s,{host_name},$ADVERTISED_HOST,g" $KAFKA_HOME/config/server-$i.properties
+
+    cp /opt/kafka.template /etc/supervisor.d/kafka-$i.ini
+    sed -i "s,{broker_id},$i,g" /etc/supervisor.d/kafka-$i.ini
+done;
 
 supervisord -n
